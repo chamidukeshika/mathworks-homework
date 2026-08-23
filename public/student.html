@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Student Portal — MathWorks</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(','\\)'], ['$', '$']] } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="/student" class="brand">
+      <div class="brand-mark">M</div><span>MathWorks</span>
+    </a>
+    <div class="top-actions">
+      <span class="badge" id="whoBadge">Student</span>
+      <button class="btn btn-secondary btn-sm" id="logoutBtn">Log out</button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <button class="nav-item active" data-view="dashboard">◆ Dashboard</button>
+      <button class="nav-item" data-view="worksheets">▤ Worksheets</button>
+      <button class="nav-item" data-view="grades">✓ My Grades</button>
+      <div class="nav-spacer"></div>
+    </aside>
+
+    <main class="main">
+      <section id="dashboardView"></section>
+      <section id="worksheetsView" style="display:none"></section>
+      <section id="gradesView" style="display:none"></section>
+      <section id="detailView" style="display:none"></section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script defer src="/student.js"></script>
+</body>
+</html>

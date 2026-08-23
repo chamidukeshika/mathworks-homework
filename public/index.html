@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MathWorks — Homework Portal</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="auth-shell">
+    <div class="card auth-card" id="authApp">
+      <div class="auth-brand">
+        <div class="brand-mark">M</div><span>MathWorks</span>
+      </div>
+      <p class="sub" style="text-align:center;margin-bottom:20px">Log in to your homework portal.</p>
+
+      <form id="authForm">
+        <div class="field">
+          <label for="usernameInput">Username</label>
+          <input class="input" id="usernameInput" placeholder="Your username" autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="passwordInput">Password</label>
+          <input class="input" id="passwordInput" type="password" placeholder="Your password" autocomplete="current-password">
+        </div>
+
+        <button class="btn btn-primary" id="submitBtn" type="submit" style="width:100%;justify-content:center;margin-top:6px">Log in →</button>
+      </form>
+    </div>
+  </main>
+
+  <div id="toast" class="toast"></div>
+  <script src="/auth.js"></script>
+</body>
+</html>

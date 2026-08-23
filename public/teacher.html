@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Teacher Portal — MathWorks</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(','\\)'], ['$', '$']] } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="/teacher" class="brand">
+      <div class="brand-mark">M</div><span>MathWorks</span>
+    </a>
+    <div class="top-actions">
+      <span class="badge" id="whoBadge">Teacher</span>
+      <button class="btn btn-secondary btn-sm" id="logoutBtn">Log out</button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <button class="nav-item active" data-view="dashboard">◆ Dashboard</button>
+      <button class="nav-item" data-view="builder">✦ Worksheet Builder</button>
+      <button class="nav-item" data-view="worksheets">▤ My Worksheets</button>
+      <button class="nav-item" data-view="queue">✓ Grading Queue</button>
+      <button class="nav-item" data-view="students">◈ Students</button>
+      <div class="nav-spacer"></div>
+    </aside>
+
+    <main class="main">
+      <section id="dashboardView"></section>
+      <section id="builderView" style="display:none"></section>
+      <section id="worksheetsView" style="display:none"></section>
+      <section id="queueView" style="display:none"></section>
+      <section id="studentsView" style="display:none"></section>
+      <section id="detailView" style="display:none"></section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="questionModal">
+    <div class="modal">
+      <div class="modal-head">
+        <div><div class="eyebrow">Question editor</div><h2 id="modalTitle" style="margin:4px 0 0">Add question</h2></div>
+        <button class="icon-btn" id="closeQuestionModal">×</button>
+      </div>
+
+      <div class="field">
+        <label for="qText">Question</label>
+        <textarea id="qText" placeholder="e.g. Solve for x: \(2x + 6 = 14\). Show your working."></textarea>
+      </div>
+      <div class="field">
+        <label for="qMarks">Marks</label>
+        <input class="input" id="qMarks" type="number" value="1" min="1" style="max-width:140px">
+      </div>
+      <div class="field">
+        <label for="qGuidance">Grading guidance <span class="private-badge">🔒 Private — teacher only</span></label>
+        <textarea id="qGuidance" placeholder="Expected working / model answer, for your reference while grading. Students never see this."></textarea>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button id="cancelQuestionBtn" class="btn btn-secondary">Cancel</button>
+        <button id="saveQuestionBtn" class="btn btn-primary">Save question</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script defer src="/teacher.js"></script>
+</body>
+</html>
