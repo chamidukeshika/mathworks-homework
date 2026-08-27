@@ -622,12 +622,32 @@ function getDraftState(worksheet, drawPads, questionModes) {
   return state;
 }
 
-async function submitWorksheet(event, worksheet, drawPads) {
+function submitWorksheet(event, worksheet, drawPads) {
   event.preventDefault();
   const answers = getAnswers(worksheet, drawPads);
-  const unanswered = Object.values(answers).filter(a => !a.text.trim() && !a.drawing).length;
-  if (unanswered && !confirm(`You still have ${unanswered} unanswered question${unanswered === 1 ? "" : "s"}. Submit anyway?`)) return;
+  const flags = worksheet.questions.map(q => !!(answers[q.id].text.trim() || answers[q.id].drawing));
+  const answeredCount = flags.filter(Boolean).length;
+  const rows = worksheet.questions.map((q, i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line)">
+      <span style="width:24px;height:24px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;font-size:12px;font-weight:800;
+        background:${flags[i] ? "var(--success-soft)" : "var(--danger-soft)"};color:${flags[i] ? "var(--success)" : "var(--danger)"}">${flags[i] ? "✓" : "!"}</span>
+      <span style="font-size:13px;flex:1;line-height:1.4">${i + 1}. ${escapeHtml(q.question).slice(0, 70)}</span>
+      <span style="font-size:11px;font-weight:800;white-space:nowrap;color:${flags[i] ? "var(--success)" : "var(--danger)"}">${flags[i] ? "Answered" : "Skipped"}</span>
+    </div>`).join("");
+  el("confirmSubmitBody").innerHTML = `
+    <div class="badge" style="margin-bottom:14px">${answeredCount} of ${flags.length} questions answered</div>
+    <div style="max-height:38vh;overflow:auto;border:1px solid var(--line);border-radius:14px;padding:0 12px">${rows}</div>
+    <p class="help" style="margin-top:12px">Once submitted, you won't be able to change your answers.</p>`;
 
+  const modal = el("confirmSubmitModal");
+  const close = () => modal.classList.remove("open");
+  modal.classList.add("open");
+  el("closeConfirmSubmit").onclick = close;
+  el("cancelSubmitBtn").onclick = close;
+  el("confirmSubmitBtn").onclick = () => { close(); finalizeSubmission(worksheet, answers); };
+}
+
+async function finalizeSubmission(worksheet, answers) {
   const timeSpentSeconds = finalizeTimer(worksheet.id);
   const btn = el("submitBtn");
   btn.disabled = true;

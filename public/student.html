@@ -1,16 +1,18 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Student Portal — MathWorks</title>
   <link rel="stylesheet" href="/styles.css">
   <script>
-    window.MathJax = { tex: { inlineMath: [['\\(','\\)'], ['$', '$']] } };
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] } };
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
+
 <body>
   <header class="topbar">
     <a href="/student" class="brand">
@@ -38,7 +40,26 @@
     </main>
   </div>
 
+  <div class="modal-backdrop" id="confirmSubmitModal">
+    <div class="modal" style="width:min(520px,100%)">
+      <div class="modal-head">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="width:38px;height:38px;border-radius:12px;flex:0 0 auto;display:grid;place-items:center;font-size:17px;
+            background:linear-gradient(135deg,var(--primary-soft),#e4e1ff);color:var(--primary-dark)">📤</span>
+          <h2>Submit worksheet?</h2>
+        </div>
+        <button class="icon-btn" id="closeConfirmSubmit" type="button">×</button>
+      </div>
+      <div id="confirmSubmitBody"></div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
+        <button class="btn btn-secondary" id="cancelSubmitBtn" type="button">No, go back</button>
+        <button class="btn btn-primary" id="confirmSubmitBtn" type="button">Yes, submit</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast"></div>
   <script defer src="/student.js"></script>
 </body>
+
 </html>
