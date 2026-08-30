@@ -95,6 +95,54 @@ function chartCard({ id, title, sub, empty, emptyMessage, bodyHtml, icon = "📊
   `;
 }
 
+function skeletonStats(count = 6) {
+  return Array.from({ length: count }, () => `
+    <div class="stat skel-card">
+      <div class="skel skel-icon"></div>
+      <div class="stat-body" style="gap:8px;width:100%">
+        <div class="skel skel-line" style="width:55%;height:24px"></div>
+        <div class="skel skel-line" style="width:75%;height:11px"></div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function skeletonCharts(count = 6) {
+  return Array.from({ length: count }, () => `
+    <div class="chart-card skel-card">
+      <div class="chart-card-head">
+        <div class="skel skel-icon" style="width:32px;height:32px;border-radius:10px"></div>
+        <div class="skel skel-line" style="width:45%;height:14px"></div>
+      </div>
+      <div class="skel skel-line" style="width:65%;height:11px;margin-bottom:16px"></div>
+      <div class="skel skel-block" style="height:230px"></div>
+    </div>
+  `).join("");
+}
+
+function skeletonWorksheetCards(count = 2) {
+  return `<div class="grid grid-cards">${Array.from({ length: count }, () => `
+    <article class="card card-flat skel-card">
+      <div class="skel skel-line" style="width:32%;height:11px"></div>
+      <div class="skel skel-line" style="width:72%;height:20px;margin-top:11px"></div>
+      <div class="skel skel-line" style="width:42%;height:13px;margin-top:9px"></div>
+      <div class="skel skel-line" style="width:130px;height:34px;border-radius:11px;margin-top:16px"></div>
+    </article>
+  `).join("")}</div>`;
+}
+
+function skeletonGradeRows(count = 3) {
+  return Array.from({ length: count }, () => `
+    <div class="skel-row">
+      <div class="skel skel-line" style="width:32%;height:14px"></div>
+      <div class="skel skel-line" style="width:90px;height:22px;border-radius:999px"></div>
+      <div class="skel skel-line" style="width:48px;height:22px;border-radius:999px"></div>
+      <div class="skel skel-line" style="width:80px;height:14px"></div>
+      <div class="skel skel-line" style="width:56px;height:28px;border-radius:9px;margin-left:auto"></div>
+    </div>
+  `).join("");
+}
+
 function baseOptions(extra = {}) {
   return {
     responsive: true,
@@ -135,8 +183,8 @@ async function loadDashboard() {
         <p class="sub">Track your worksheet progress and where to focus next.</p>
       </div>
     </div>
-    <div class="grid grid-auto" id="statTiles" style="margin-bottom:18px"></div>
-    <div class="chart-grid" id="chartGrid"></div>
+    <div class="grid grid-auto" id="statTiles" style="margin-bottom:18px">${skeletonStats()}</div>
+    <div class="chart-grid" id="chartGrid">${skeletonCharts()}</div>
   `;
 
   let stats;
@@ -272,7 +320,7 @@ async function loadWorksheets() {
     <div class="page-head">
       <div><div class="eyebrow">Homework</div><h1>Worksheets</h1><p class="sub">Answer with full working — your teacher grades each one by hand.</p></div>
     </div>
-    <div id="worksheetList"><div class="empty">Loading worksheets...</div></div>
+    <div id="worksheetList">${skeletonWorksheetCards()}</div>
   `;
 
   let rows;
@@ -684,7 +732,7 @@ async function loadGrades() {
   const section = views.grades;
   section.innerHTML = `
     <div class="page-head"><div><div class="eyebrow">Review</div><h1>My grades</h1><p class="sub">See your teacher's feedback on every submitted worksheet.</p></div></div>
-    <div class="card"><div id="gradesTable"><div class="empty">Loading...</div></div></div>
+    <div class="card"><div id="gradesTable">${skeletonGradeRows()}</div></div>
   `;
 
   let rows;

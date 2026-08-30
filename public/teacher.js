@@ -114,6 +114,47 @@ function chartCard({ id, title, sub, empty, emptyMessage, icon = "📊", iconBg 
 function baseOptions(extra = {}) {
   return { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { boxWidth: 10, font: { size: 11 }, usePointStyle: true, pointStyle: "circle" } } }, ...extra };
 }
+
+function skeletonStats(count = 3) {
+  return Array.from({ length: count }, () => `
+    <div class="stat skel-card">
+      <div class="skel skel-icon"></div>
+      <div class="stat-body" style="gap:8px;width:100%">
+        <div class="skel skel-line" style="width:55%;height:24px"></div>
+        <div class="skel skel-line" style="width:75%;height:11px"></div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function skeletonCharts(count = 5) {
+  return Array.from({ length: count }, () => `
+    <div class="chart-card skel-card">
+      <div class="chart-card-head">
+        <div class="skel skel-icon" style="width:32px;height:32px;border-radius:10px"></div>
+        <div class="skel skel-line" style="width:45%;height:14px"></div>
+      </div>
+      <div class="skel skel-line" style="width:65%;height:11px;margin-bottom:16px"></div>
+      <div class="skel skel-block" style="height:230px"></div>
+    </div>
+  `).join("");
+}
+
+function skeletonWorksheetCards(count = 2) {
+  return Array.from({ length: count }, () => `
+    <article class="card card-flat skel-card">
+      <div style="display:flex;justify-content:space-between;gap:12px">
+        <div class="skel skel-line" style="width:60%;height:18px"></div>
+        <div class="skel skel-line" style="width:70px;height:26px;border-radius:9px"></div>
+      </div>
+      <div class="skel skel-line" style="width:40%;height:12px;margin-top:12px"></div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <div class="skel skel-line" style="width:90px;height:32px;border-radius:10px"></div>
+        <div class="skel skel-line" style="width:90px;height:32px;border-radius:10px"></div>
+      </div>
+    </article>
+  `).join("");
+}
 function greeting() {
   const h = new Date().getHours();
   if (h < 12) return "Good morning";
@@ -131,8 +172,8 @@ async function loadDashboard() {
       <div><div class="eyebrow">Overview</div><h1>${greeting()}${firstName ? ", " + firstName : ""} 👋</h1><p class="sub">See engagement and performance across all your worksheets.</p></div>
       <button class="btn btn-primary" onclick="openBuilder()">+ New worksheet</button>
     </div>
-    <div class="grid grid-auto" id="statTiles" style="margin-bottom:18px"></div>
-    <div class="chart-grid" id="chartGrid"></div>
+    <div class="grid grid-auto" id="statTiles" style="margin-bottom:18px">${skeletonStats()}</div>
+    <div class="chart-grid" id="chartGrid">${skeletonCharts()}</div>
   `;
 
   let stats;
@@ -466,7 +507,7 @@ async function loadWorksheets() {
       <div><div class="eyebrow">Library</div><h1>My worksheets</h1><p class="sub">Every worksheet you publish is visible to all students immediately.</p></div>
       <button class="btn btn-primary" onclick="openBuilder()">+ New worksheet</button>
     </div>
-    <div id="worksheetLibrary"><div class="empty">Loading...</div></div>
+    <div id="worksheetLibrary"><div class="grid grid-cards">${skeletonWorksheetCards()}</div></div>
   `;
 
   let rows;
