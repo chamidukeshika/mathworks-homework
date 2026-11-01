@@ -278,7 +278,7 @@ function builderTemplate() {
   {"question":"Solve for x: 2x + 6 = 14","marks":2},
   {"question":"Simplify: 3(x + 4) - 2x","marks":2,"guidance":"Expect 3x+12-2x = x+12"}
 ]'></textarea>
-          <div class="help">Supported fields: question, marks and guidance (private grading note).</div>
+          <div class="help">Fields: question, marks, guidance (private), figure (diagram object) and image (PNG/JPG/GIF/WebP data URL). See README for diagram elements.</div>
         </div>
         <button id="importJsonBtn" class="btn btn-secondary">Import JSON</button>
       </section>
@@ -311,7 +311,7 @@ function renderQuestions() {
       <div class="question-row">
         <div class="q-num">${i + 1}</div>
         <div>
-          <div class="q-title">${escapeHtml(q.question)}</div>
+          <div class="q-title">${escapeHtml(q.question)}${q.figure || q.image ? ' <span class="badge">📐 diagram</span>' : ""}</div>
           <div class="q-meta">${q.marks} mark${q.marks === 1 ? "" : "s"}${q.guidance ? " • has grading guidance" : ""}</div>
         </div>
         <div class="q-actions">
@@ -344,11 +344,23 @@ function renderPreview() {
       ${questions.map((q, i) => `
         <div class="preview-question">
           <div style="font-weight:750">${i + 1}. ${escapeHtml(q.question)} <span class="help">(${q.marks} mark${q.marks === 1 ? "" : "s"})</span></div>
+          ${renderQuestionMedia(q)}
           <div class="answer-demo"></div>
         </div>
       `).join("")}
     </div>
   `;
+}
+
+let modalImage = "";
+const MAX_IMAGE_BYTES = 1024 * 1024;
+
+function updateModalMedia() {
+  el("qImagePreview").innerHTML = modalImage ? `<div class="question-media"><img class="figure-img" src="${modalImage}" alt="Uploaded picture"></div>` : "";
+  el("clearQImage").style.display = modalImage ? "" : "none";
+  let figure = null;
+  try { figure = JSON.parse(el("qFigure").value); } catch { /* invalid or empty */ }
+  el("qFigurePreview").innerHTML = figure ? renderQuestionMedia({ figure }) : "";
 }
 
 function resetQuestionModal() {
@@ -357,6 +369,10 @@ function resetQuestionModal() {
   el("qText").value = "";
   el("qMarks").value = "1";
   el("qGuidance").value = "";
+  el("qFigure").value = "";
+  el("qImage").value = "";
+  modalImage = "";
+  updateModalMedia();
 }
 function openQuestionModal() {
   el("questionModal").classList.add("open");
@@ -364,6 +380,17 @@ function openQuestionModal() {
 }
 function closeQuestionModal() { el("questionModal").classList.remove("open"); }
 
+el("qFigure").addEventListener("input", updateModalMedia);
+el("clearQImage").addEventListener("click", () => { modalImage = ""; el("qImage").value = ""; updateModalMedia(); });
+el("qImage").addEventListener("change", () => {
+  const file = el("qImage").files[0];
+  if (!file) return;
+  if (!/^image\/(png|jpeg|gif|webp)$/.test(file.type)) { el("qImage").value = ""; return toast("Use a PNG, JPG, GIF or WebP picture."); }
+  if (file.size > MAX_IMAGE_BYTES) { el("qImage").value = ""; return toast("Picture must be under 1 MB."); }
+  const reader = new FileReader();
+  reader.onload = () => { modalImage = reader.result; updateModalMedia(); };
+  reader.readAsDataURL(file);
+});
 el("closeQuestionModal").addEventListener("click", closeQuestionModal);
 el("cancelQuestionBtn").addEventListener("click", closeQuestionModal);
 el("questionModal").addEventListener("click", e => { if (e.target === el("questionModal")) closeQuestionModal(); });
@@ -375,6 +402,10 @@ window.editQuestion = function (index) {
   el("qText").value = q.question || "";
   el("qMarks").value = q.marks || 1;
   el("qGuidance").value = q.guidance || "";
+  el("qFigure").value = q.figure ? JSON.stringify(q.figure, null, 2) : "";
+  modalImage = q.image || "";
+  el("qImage").value = "";
+  updateModalMedia();
   openQuestionModal();
 };
 window.removeQuestion = function (index) { questions.splice(index, 1); renderQuestions(); };
@@ -385,7 +416,13 @@ el("saveQuestionBtn").addEventListener("click", () => {
   const guidance = el("qGuidance").value.trim();
   if (!question) return toast("Add the question text.");
 
-  const item = { question, marks, guidance };
+  let figure = null;
+  const figureText = el("qFigure").value.trim();
+  if (figureText) {
+    try { figure = JSON.parse(figureText); } catch { return toast("Diagram JSON isn't valid."); }
+    if (!window.renderFigure(figure)) return toast("Diagram needs xRange and yRange like [-5, 5].");
+  }
+  const item = { question, marks, guidance, figure, image: modalImage };
   if (editingIndex === null) questions.push(item);
   else questions[editingIndex] = item;
   closeQuestionModal();
@@ -397,7 +434,19 @@ const algebraExample = [
   { question: "Simplify: \\(3(x + 4) - 2x\\)", marks: 2, guidance: "3x+12-2x = x+12" },
   { question: "A rectangle has length \\(2x+3\\) and width \\(x\\). Write and simplify an expression for its perimeter.", marks: 3, guidance: "P=2(2x+3)+2x = 6x+6" },
   { question: "Solve the system: \\(x+y=10\\), \\(x-y=2\\). Show your method.", marks: 3, guidance: "x=6, y=4" },
-  { question: "Factorise: \\(x^2 + 7x + 12\\)", marks: 2, guidance: "(x+3)(x+4)" }
+  { question: "Factorise: \\(x^2 + 7x + 12\\)", marks: 2, guidance: "(x+3)(x+4)" },
+  {
+    question: "Triangle ABC is drawn on the grid. Find the gradient of line AB and write its equation.",
+    marks: 3,
+    guidance: "m = 1, y = x + 1",
+    figure: {
+      xRange: [-1, 6], yRange: [-1, 6],
+      elements: [
+        { type: "polygon", points: [[1, 2], [4, 5], [5, 1]], vertices: ["A", "B", "C"], color: "blue" },
+        { type: "line", slope: 1, intercept: 1, dashed: true, color: "red", label: "?" }
+      ]
+    }
+  }
 ];
 
 function loadExample() {
@@ -417,7 +466,9 @@ function importJson() {
     const clean = parsed.map(q => ({
       question: String(q.question || "").trim(),
       marks: Number(q.marks) > 0 ? Number(q.marks) : 1,
-      guidance: String(q.guidance || "").trim()
+      guidance: String(q.guidance || "").trim(),
+      figure: q.figure && window.renderFigure(q.figure) ? q.figure : null,
+      image: typeof q.image === "string" && q.image.startsWith("data:image/") ? q.image : ""
     }));
     if (clean.some(q => !q.question)) throw new Error("Every question needs question text");
     questions = clean;
@@ -470,7 +521,7 @@ window.editWorksheet = async function (id) {
   if (worksheet.submissionCount > 0) return toast("This worksheet has submissions — duplicate it instead of editing.");
 
   editingWorksheetId = id;
-  questions = worksheet.questions.map(q => ({ question: q.question, marks: q.marks, guidance: q.guidance }));
+  questions = worksheet.questions.map(q => ({ question: q.question, marks: q.marks, guidance: q.guidance, figure: q.figure || null, image: q.image || "" }));
   switchViewSilent("builder");
   document.querySelectorAll(".nav-item[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === "builder"));
   views.builder.innerHTML = builderTemplate();
@@ -631,6 +682,7 @@ window.openGrading = async function (id) {
         ${submission.review.map((q, i) => `
           <div class="answer-block" data-qid="${escapeHtml(q.questionId)}" data-marks="${q.marks}">
             <div style="font-weight:750">${i + 1}. ${escapeHtml(q.question)} <span class="help">(${q.marks} mark${q.marks === 1 ? "" : "s"})</span></div>
+            ${renderQuestionMedia(q)}
             ${q.guidance ? `<div class="guidance-box" style="margin-top:10px"><div class="guidance-label">🔒 Grading guidance</div>${escapeHtml(q.guidance)}</div>` : ""}
             ${renderAnswerContent(q)}
             <div class="correct-toggle" style="margin-top:12px">

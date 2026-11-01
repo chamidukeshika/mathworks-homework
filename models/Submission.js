@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const reviewItemSchema = new mongoose.Schema({
   questionId: { type: String, required: true },
   question: { type: String, required: true },
+  figure: { type: mongoose.Schema.Types.Mixed, default: null },
+  image: { type: String, default: "" },
   studentAnswerText: { type: String, default: "" },
   studentAnswerDrawing: { type: String, default: null },
   marks: { type: Number, required: true },

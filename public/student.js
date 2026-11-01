@@ -563,6 +563,7 @@ window.openWorksheet = async function (id) {
             <div class="student-qnum">${i + 1}</div>
             <div class="student-question">${escapeHtml(q.question)} <span class="help">(${q.marks} mark${q.marks === 1 ? "" : "s"})</span></div>
           </div>
+          ${renderQuestionMedia(q)}
           <div class="student-answer">
             <div class="segmented answer-mode-toggle">
               <button type="button" class="mode-btn active" data-mode="type">⌨ Type</button>
@@ -808,6 +809,7 @@ window.openSubmission = async function (id) {
         <div class="review-item ${q.correct ? "good" : "bad"}">
           <div class="review-status">${q.correct ? "✓ Correct" : "✕ Needs review"} · ${q.awardedMarks}/${q.marks} marks</div>
           <div style="font-weight:750">${i + 1}. ${escapeHtml(q.question)}</div>
+          ${renderQuestionMedia(q)}
           ${renderAnswerContent(q)}
           ${q.feedback ? `<div class="help" style="margin-top:8px"><strong>Teacher feedback:</strong> ${escapeHtml(q.feedback)}</div>` : ""}
         </div>

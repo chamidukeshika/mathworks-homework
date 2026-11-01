@@ -684,3 +684,10 @@ tbody tr:hover{background:var(--surface-soft)}
   .grading-screen{grid-template-columns:1fr}
   .grade-side-card{position:static}
 }
+
+/* Question figures & images */
+.question-media{margin:12px 0 4px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
+.figure-svg{width:100%;max-width:420px;height:auto;background:#fff;border:1px solid #e1e3eb;border-radius:10px}
+.figure-img{max-width:100%;max-height:360px;border:1px solid #e1e3eb;border-radius:10px;background:#fff}
+.media-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.media-tools input[type=file]{font-size:13px}

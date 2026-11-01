@@ -111,13 +111,61 @@ function isValidId(id) {
   return mongoose.isValidObjectId(id);
 }
 
+const MAX_IMAGE_CHARS = 1_500_000;
+const MAX_FIGURE_ELEMENTS = 60;
+const FIGURE_TYPES = new Set(["point", "line", "segment", "polygon", "circle", "text"]);
+
+// Raster images only (no SVG: it can carry script). Returns "" if invalid.
+function cleanImage(value) {
+  if (typeof value !== "string") return "";
+  return /^data:image\/(png|jpeg|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(value) && value.length <= MAX_IMAGE_CHARS ? value : "";
+}
+
+// Whitelist-copies a figure spec (see public/figure.js) so only plain numbers/strings are stored.
+function cleanFigure(f) {
+  if (!f || typeof f !== "object" || Array.isArray(f)) return null;
+  const n = v => (Number.isFinite(Number(v)) ? Number(v) : 0);
+  const range = (r, d) => (Array.isArray(r) && r.length === 2 && n(r[1]) > n(r[0]) && n(r[1]) - n(r[0]) <= 100 ? [n(r[0]), n(r[1])] : d);
+  const pt = p => [n(p?.[0]), n(p?.[1])];
+  const str = v => String(v ?? "").slice(0, 40);
+  const elements = (Array.isArray(f.elements) ? f.elements : [])
+    .filter(e => e && FIGURE_TYPES.has(e.type))
+    .slice(0, MAX_FIGURE_ELEMENTS)
+    .map(e => {
+      const out = { type: e.type, color: str(e.color), label: str(e.label), dashed: Boolean(e.dashed) };
+      if (e.type === "point" || e.type === "text") { out.x = n(e.x); out.y = n(e.y); out.text = str(e.text); }
+      if (e.type === "segment") { out.from = pt(e.from); out.to = pt(e.to); }
+      if (e.type === "line") {
+        if (Array.isArray(e.through) && e.through.length === 2) out.through = e.through.map(pt);
+        else { out.slope = n(e.slope); out.intercept = n(e.intercept); }
+      }
+      if (e.type === "polygon") {
+        out.points = (Array.isArray(e.points) ? e.points : []).slice(0, 20).map(pt);
+        if (Array.isArray(e.vertices)) out.vertices = e.vertices.slice(0, 20).map(str);
+        out.fill = e.fill !== false;
+      }
+      if (e.type === "circle") { out.center = pt(e.center); out.radius = Math.abs(n(e.radius)); out.fill = e.fill !== false; }
+      return out;
+    });
+  return {
+    xRange: range(f.xRange, [-5, 5]),
+    yRange: range(f.yRange, [-5, 5]),
+    grid: f.grid !== false,
+    axes: f.axes !== false,
+    caption: str(f.caption),
+    elements
+  };
+}
+
 function cleanQuestions(questions) {
   if (!Array.isArray(questions) || !questions.length) return null;
   const clean = questions.map((q, i) => ({
     id: q.id || `q${i + 1}`,
     question: String(q.question || "").trim(),
     marks: Number(q.marks) > 0 ? Number(q.marks) : 1,
-    guidance: String(q.guidance || "").trim()
+    guidance: String(q.guidance || "").trim(),
+    figure: cleanFigure(q.figure),
+    image: cleanImage(q.image)
   }));
   return clean.some(q => !q.question) ? null : clean;
 }
@@ -330,7 +378,7 @@ app.get("/api/student/worksheets/:id", requireRole("student"), async (req, res) 
     title: worksheet.title,
     topic: worksheet.topic,
     description: worksheet.description,
-    questions: worksheet.questions.map(({ id, question, marks }) => ({ id, question, marks })),
+    questions: worksheet.questions.map(({ id, question, marks, figure, image }) => ({ id, question, marks, figure, image })),
     createdAt: worksheet.createdAt
   });
 });
@@ -353,6 +401,8 @@ app.post("/api/student/worksheets/:id/submit", requireRole("student"), async (re
     return {
       questionId: q.id,
       question: q.question,
+      figure: q.figure || null,
+      image: q.image || "",
       studentAnswerText: String(raw.text || "").trim(),
       studentAnswerDrawing: drawing,
       marks: q.marks,

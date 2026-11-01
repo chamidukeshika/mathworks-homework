@@ -4,7 +4,9 @@ const questionSchema = new mongoose.Schema({
   id: { type: String, required: true },
   question: { type: String, required: true, trim: true },
   marks: { type: Number, required: true, min: 1 },
-  guidance: { type: String, default: "", trim: true }
+  guidance: { type: String, default: "", trim: true },
+  figure: { type: mongoose.Schema.Types.Mixed, default: null },
+  image: { type: String, default: "" }
 }, { _id: false });
 
 const worksheetSchema = new mongoose.Schema({

@@ -90,6 +90,20 @@
         <textarea id="qGuidance" placeholder="Expected working / model answer, for your reference while grading. Students never see this."></textarea>
       </div>
 
+      <div class="field">
+        <label for="qImage">Picture <span class="help">(optional — PNG, JPG, GIF or WebP, up to 1 MB)</span></label>
+        <div class="media-tools">
+          <input type="file" id="qImage" accept="image/png,image/jpeg,image/gif,image/webp">
+          <button type="button" id="clearQImage" class="btn btn-ghost btn-sm" style="display:none">Remove picture</button>
+        </div>
+        <div id="qImagePreview"></div>
+      </div>
+      <div class="field">
+        <label for="qFigure">Diagram JSON <span class="help">(optional — coordinate plane, lines, shapes)</span></label>
+        <textarea id="qFigure" placeholder='{"xRange":[-5,5],"yRange":[-5,5],"elements":[{"type":"point","x":2,"y":3,"label":"A"}]}'></textarea>
+        <div id="qFigurePreview"></div>
+      </div>
+
       <div style="display:flex;justify-content:flex-end;gap:10px">
         <button id="cancelQuestionBtn" class="btn btn-secondary">Cancel</button>
         <button id="saveQuestionBtn" class="btn btn-primary">Save question</button>
@@ -98,6 +112,7 @@
   </div>
 
   <div id="toast" class="toast"></div>
+  <script defer src="/figure.js"></script>
   <script defer src="/sidebar.js"></script>
   <script defer src="/teacher.js"></script>
 </body>
