@@ -461,8 +461,10 @@ function loadExample() {
 
 function importJson() {
   try {
-    const parsed = JSON.parse(el("jsonInput").value);
-    if (!Array.isArray(parsed)) throw new Error("JSON must be an array");
+    let parsed = JSON.parse(el("jsonInput").value);
+    if (parsed && !Array.isArray(parsed) && Array.isArray(parsed.questions)) parsed = parsed.questions;
+    else if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) parsed = [parsed];
+    if (!Array.isArray(parsed)) throw new Error("JSON must be an array of questions");
     const clean = parsed.map(q => ({
       question: String(q.question || "").trim(),
       marks: Number(q.marks) > 0 ? Number(q.marks) : 1,
