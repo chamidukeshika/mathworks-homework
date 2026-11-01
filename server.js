@@ -128,6 +128,19 @@ function cleanFigure(f) {
   const range = (r, d) => (Array.isArray(r) && r.length === 2 && n(r[1]) > n(r[0]) && n(r[1]) - n(r[0]) <= 100 ? [n(r[0]), n(r[1])] : d);
   const pt = p => [n(p?.[0]), n(p?.[1])];
   const str = v => String(v ?? "").slice(0, 40);
+  if (f.kind === "numberline") {
+    const end = v => (v == null ? null : n(v));
+    const color = v => str(v);
+    return {
+      kind: "numberline",
+      min: n(f.min), max: n(f.max), step: n(f.step) > 0 ? n(f.step) : 1,
+      caption: str(f.caption),
+      intervals: (Array.isArray(f.intervals) ? f.intervals : []).slice(0, 10).map(i => ({
+        from: end(i?.from), to: end(i?.to), fromOpen: Boolean(i?.fromOpen), toOpen: Boolean(i?.toOpen), color: color(i?.color)
+      })),
+      points: (Array.isArray(f.points) ? f.points : []).slice(0, 20).map(p => ({ x: n(p?.x), label: str(p?.label), open: Boolean(p?.open), color: color(p?.color) }))
+    };
+  }
   const elements = (Array.isArray(f.elements) ? f.elements : [])
     .filter(e => e && FIGURE_TYPES.has(e.type))
     .slice(0, MAX_FIGURE_ELEMENTS)

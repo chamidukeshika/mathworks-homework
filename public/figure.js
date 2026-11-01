@@ -9,8 +9,41 @@
   const num = v => (Number.isFinite(Number(v)) ? Number(v) : 0);
   const color = c => COLORS[c] || (/^#[0-9a-f]{6}$/i.test(c) ? c : COLORS.blue);
 
+  // Number line: { kind:"numberline", min, max, step, intervals:[{from,to,fromOpen,toOpen,color}], points:[{x,label,open,color}] }
+  // Omit/null `from` or `to` for a ray running off to -infinity / +infinity (drawn with an arrow).
+  function renderNumberLine(spec) {
+    const min = num(spec.min), max = num(spec.max);
+    if (!(max > min) || max - min > 60) return "";
+    const step = num(spec.step) > 0 ? num(spec.step) : 1;
+    const H = 90, y = 46, sx = v => PAD + (v - min) / (max - min) * (W - 2 * PAD);
+    const out = [`<line x1="${PAD - 10}" y1="${y}" x2="${W - PAD + 10}" y2="${y}" stroke="#5b6275" stroke-width="2"/>`,
+      `<polygon points="${PAD - 14},${y} ${PAD - 6},${y - 4} ${PAD - 6},${y + 4}" fill="#5b6275"/>`,
+      `<polygon points="${W - PAD + 14},${y} ${W - PAD + 6},${y - 4} ${W - PAD + 6},${y + 4}" fill="#5b6275"/>`];
+    for (let v = Math.ceil(min / step) * step; v <= max + 1e-9; v += step) {
+      const r = Math.round(v * 1000) / 1000;
+      out.push(`<line x1="${sx(r)}" y1="${y - 5}" x2="${sx(r)}" y2="${y + 5}" stroke="#5b6275" stroke-width="1.5"/><text x="${sx(r)}" y="${y + 20}" font-size="11" fill="#5b6275" text-anchor="middle">${r}</text>`);
+    }
+    const dot = (x, open, c) => `<circle cx="${sx(x)}" cy="${y}" r="6" fill="${open ? "#fff" : c}" stroke="${c}" stroke-width="2.5"/>`;
+    for (const iv of Array.isArray(spec.intervals) ? spec.intervals : []) {
+      const c = color(iv.color);
+      const hasFrom = iv.from != null, hasTo = iv.to != null;
+      const a = hasFrom ? num(iv.from) : min, b = hasTo ? num(iv.to) : max;
+      out.push(`<line x1="${sx(a) - (hasFrom ? 0 : 10)}" y1="${y}" x2="${sx(b) + (hasTo ? 0 : 10)}" y2="${y}" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`);
+      if (!hasFrom) out.push(`<polygon points="${PAD - 14},${y} ${PAD - 4},${y - 6} ${PAD - 4},${y + 6}" fill="${c}"/>`);
+      if (!hasTo) out.push(`<polygon points="${W - PAD + 14},${y} ${W - PAD + 4},${y - 6} ${W - PAD + 4},${y + 6}" fill="${c}"/>`);
+      if (hasFrom) out.push(dot(a, iv.fromOpen, c));
+      if (hasTo) out.push(dot(b, iv.toOpen, c));
+    }
+    for (const p of Array.isArray(spec.points) ? spec.points : []) {
+      const c = color(p.color), x = num(p.x);
+      out.push(dot(x, p.open, c) + (p.label ? `<text x="${sx(x)}" y="${y - 14}" font-size="12" font-weight="600" fill="${c}" text-anchor="middle">${esc(p.label)}</text>` : ""));
+    }
+    return `<svg class="figure-svg numberline-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(spec.caption || "Number line")}" xmlns="http://www.w3.org/2000/svg">${out.join("")}</svg>`;
+  }
+
   window.renderFigure = function (spec) {
     if (!spec || typeof spec !== "object") return "";
+    if (spec.kind === "numberline") return renderNumberLine(spec);
     const [x0, x1] = Array.isArray(spec.xRange) ? spec.xRange.map(num) : [-5, 5];
     const [y0, y1] = Array.isArray(spec.yRange) ? spec.yRange.map(num) : [-5, 5];
     if (!(x1 > x0) || !(y1 > y0)) return "";

@@ -25,3 +25,18 @@ Each question can carry a `figure` (a coordinate plane with shapes, drawn as SVG
 ```
 
 Colors: blue, red, green, orange, purple, black, or `#rrggbb`. Add `"dashed": true` to lines/segments/polygons/circles.
+
+### Number lines (inequalities)
+
+Set `"kind": "numberline"` on a figure. Leave `from` or `to` out (or `null`) for a ray running off to infinity.
+
+```json
+{"kind":"numberline","min":-5,"max":6,
+ "intervals":[
+   {"from":2,"fromOpen":true,"to":null,"color":"red"},
+   {"from":-3,"to":4,"toOpen":true}
+ ],
+ "points":[{"x":0,"label":"0","open":false}]}
+```
+
+`x > 2` is `from: 2, fromOpen: true, to: null`. `-3 <= x < 4` is `from: -3, to: 4, toOpen: true`. Open circles use `fromOpen`/`toOpen` (or `open` on a point).

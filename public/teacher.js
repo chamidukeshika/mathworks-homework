@@ -436,6 +436,12 @@ const algebraExample = [
   { question: "Solve the system: \\(x+y=10\\), \\(x-y=2\\). Show your method.", marks: 3, guidance: "x=6, y=4" },
   { question: "Factorise: \\(x^2 + 7x + 12\\)", marks: 2, guidance: "(x+3)(x+4)" },
   {
+    question: "Write the inequality shown on the number line, then list the integers that satisfy it.",
+    marks: 2,
+    guidance: "-3 \u2264 x < 4; integers -3, -2, -1, 0, 1, 2, 3",
+    figure: { kind: "numberline", min: -5, max: 6, intervals: [{ from: -3, to: 4, fromOpen: false, toOpen: true, color: "blue" }] }
+  },
+  {
     question: "Triangle ABC is drawn on the grid. Find the gradient of line AB and write its equation.",
     marks: 3,
     guidance: "m = 1, y = x + 1",
